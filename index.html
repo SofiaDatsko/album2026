@@ -45,17 +45,11 @@
 
         /* SECTION HEAD */
         .sec{padding:20px 16px 12px}
-        .sec-tag{
-          display:inline-block;background:var(--acc);color:#000;
-          font-family:'Unbounded',sans-serif;font-size:9px;font-weight:900;
-          padding:3px 11px;border-radius:99px;letter-spacing:.8px;margin-bottom:8px
-        }
         .sec h2{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;margin-bottom:5px}
         .sec p{font-size:12px;color:var(--muted);line-height:1.6}
 
         /* NAME INPUT */
         .name-wrap{padding:4px 16px 24px}
-        .nlabel{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
         .ninput{
           width:100%;background:var(--surf2);border:2px solid var(--brd);
           border-radius:var(--r);padding:15px 16px;
@@ -63,7 +57,6 @@
           transition:border-color .2s
         }
         .ninput:focus{border-color:var(--acc)}
-        .ninput::placeholder{color:var(--muted)}
 
         /* GRID */
         .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:0 12px}
@@ -125,51 +118,26 @@
         .sum-vals{display:flex; flex-wrap:wrap; gap:5px}
         .sum-pill{background:var(--bg); padding:4px 10px; border-radius:99px; font-size:11px}
         
-        /* НОВІ КОЛЬОРИ ТА СТИЛІ РЕЗУЛЬТАТІВ */
         .stats-wrap{margin-top:30px; text-align:left}
         .bar-item{margin-bottom:14px}
         .bar-row{display:flex; justify-content:space-between; font-size:11px; margin-bottom:5px; color:#efefef}
-        
         .bar-bg{
-            background:#1a1a20; 
-            height:10px; 
-            border-radius:999px; 
-            overflow:hidden; 
-            position:relative; 
-            border:1px solid #2f2f36;
+            background:#1a1a20; height:10px; border-radius:999px; 
+            overflow:hidden; position:relative; border:1px solid #2f2f36;
         }
-
         .bar-fill{
-            height:100%; 
-            border-radius:999px; 
-            transition:width .8s cubic-bezier(0.4, 0, 0.2, 1); 
-            position:relative;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3) inset;
+            height:100%; border-radius:999px; 
+            transition:width .8s cubic-bezier(0.4, 0, 0.2, 1); position:relative;
         }
-
-        /* Ефект блиску зверху шкал */
-        .bar-fill::after{
-            content:'';
-            position:absolute;
-            inset:0;
-            background: linear-gradient(
-                180deg,
-                rgba(255,255,255,0.15) 0%,
-                rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.1) 100%
-            );
-        }
-
-        /* Градієнти для категорій */
-        .group-c .bar-fill { background: linear-gradient(90deg, #f2994a, #f2c94c); } /* Золотий */
-        .group-p .bar-fill { background: linear-gradient(90deg, #8e2de2, #4a00e0); } /* Фіолетовий */
-        .group-s .bar-fill { background: linear-gradient(90deg, #00d2ff, #3a7bd5); } /* Блакитний */
+        .group-c .bar-fill { background: linear-gradient(90deg, #f2994a, #f2c94c); }
+        .group-p .bar-fill { background: linear-gradient(90deg, #8e2de2, #4a00e0); }
+        .group-s .bar-fill { background: linear-gradient(90deg, #00d2ff, #3a7bd5); }
 
         /* ADMIN */
         .admin-link{position:fixed; bottom:140px; right:16px; font-size:10px; color:var(--muted); cursor:pointer; z-index:99}
         .pin-display{background:var(--surf2); padding:15px; border-radius:var(--r); text-align:center; font-size:24px; letter-spacing:10px; margin-bottom:20px}
         .pinpad{display:grid; grid-template-columns: repeat(3,1fr); gap:10px; max-width:250px; margin:0 auto}
-        .pin-digit{background:var(--surf2); padding:20px; border-radius:var(--r); text-align:center; cursor:pointer}
+        .pin-digit{background:var(--surf2); padding:20px; border-radius:var(--r); text-align:center; cursor:pointer; font-weight:700}
         .voter-table{width:100%; border-collapse:collapse; font-size:12px; margin-top:20px}
         .voter-table th{text-align:left; color:var(--muted); padding:10px; border-bottom:1px solid var(--brd)}
         .voter-table td{padding:10px; border-bottom:1px solid var(--brd)}
@@ -257,12 +225,7 @@
     <div class="ty">
         <h2>Вхід для адміна</h2>
         <div class="pin-display" id="pinDisp">····</div>
-        <div class="pinpad">
-            <div class="pin-digit" onclick="pinIn('1')">1</div><div class="pin-digit" onclick="pinIn('2')">2</div><div class="pin-digit" onclick="pinIn('3')">3</div>
-            <div class="pin-digit" onclick="pinIn('4')">4</div><div class="pin-digit" onclick="pinIn('5')">5</div><div class="pin-digit" onclick="pinIn('6')">6</div>
-            <div class="pin-digit" onclick="pinIn('7')">7</div><div class="pin-digit" onclick="pinIn('8')">8</div><div class="pin-digit" onclick="pinIn('9')">9</div>
-            <div class="pin-digit" onclick="pinIn('C')">⌫</div><div class="pin-digit" onclick="pinIn('0')">0</div><div class="pin-digit" onclick="pinIn('OK')" style="color:var(--acc)">OK</div>
-        </div>
+        <div class="pinpad" id="adminPad"></div>
     </div>
 </div>
 
@@ -278,7 +241,6 @@
 <div class="admin-link" onclick="goTo('sAdminLogin')">⚙ Адмін</div>
 
 <script>
-// --- КОНФІГУРАЦІЯ ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgB5NlmGcniZgcM9C7AgdAybH2eLtGCHj2HlNMXWw8LXtkUb4YQc9ZsbkDtN1CvsCRcg/exec";
 
 const I = {
@@ -372,29 +334,33 @@ function createGrid(containerId, prefix, count, set, infoId, btnId) {
     }
 }
 
-// Ініціалізація
+// Ініціалізація сіток
 createGrid('covGrid', 'c', 42, selC, 'covSelInfo', 'btnCov');
 createGrid('photoGrid', 'p', 4, selP, 'phSelInfo', 'btnPh');
 createGrid('spreadGrid', 's', 8, selS, 'spSelInfo', 'btnSp');
 
 document.getElementById('nameIn').oninput = (e) => document.getElementById('btnName').disabled = e.target.value.trim().length < 3;
 
-// --- РОБОТА З ДАНИМИ ---
-
 async function submitVote() {
     const btn = document.getElementById('btnSp');
     btn.disabled = true; btn.innerText = "НАДСИЛАННЯ...";
     
     const name = document.getElementById('nameIn').value.trim();
-    const vote = { name, c: [...selC], p: [...selP], s: [...selS], date: new Date().toLocaleString() };
+    const vote = { 
+        name, 
+        c: Array.from(selC).map(n => "№" + n), 
+        p: Array.from(selP).map(n => "№" + n), 
+        s: Array.from(selS).map(n => "№" + n), 
+        date: new Date().toLocaleString() 
+    };
 
     try {
         await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(vote) });
         document.getElementById('tyName').innerText = name;
         document.getElementById('summary').innerHTML = `
-            <div class="sum-card"><div class="sum-lbl">Обкладинки</div><div class="sum-vals">${vote.c.map(v=>`<span class="sum-pill">№${v}</span>`).join('')}</div></div>
-            <div class="sum-card"><div class="sum-lbl">Портрет</div><div class="sum-vals">${vote.p.map(v=>`<span class="sum-pill">№${v}</span>`).join('')}</div></div>
-            <div class="sum-card"><div class="sum-lbl">Розвороти</div><div class="sum-vals">${vote.s.map(v=>`<span class="sum-pill">№${v}</span>`).join('')}</div></div>`;
+            <div class="sum-card"><div class="sum-lbl">Обкладинки</div><div class="sum-vals">${vote.c.map(v=>`<span class="sum-pill">${v}</span>`).join('')}</div></div>
+            <div class="sum-card"><div class="sum-lbl">Портрет</div><div class="sum-vals">${vote.p.map(v=>`<span class="sum-pill">${v}</span>`).join('')}</div></div>
+            <div class="sum-card"><div class="sum-lbl">Розвороти</div><div class="sum-vals">${vote.s.map(v=>`<span class="sum-pill">${v}</span>`).join('')}</div></div>`;
         goTo('sTy');
         renderStats(); 
     } catch (e) {
@@ -410,14 +376,25 @@ async function renderStats() {
         const counts = { c: {}, p: {}, s: {} };
         
         allVotes.forEach(v => {
-            String(v.c).split(',').forEach(x => { if(x.trim()) counts.c[x.trim()] = (counts.c[x.trim()] || 0) + 1 });
-            String(v.p).split(',').forEach(x => { if(x.trim()) counts.p[x.trim()] = (counts.p[x.trim()] || 0) + 1 });
-            String(v.s).split(',').forEach(x => { if(x.trim()) counts.s[x.trim()] = (counts.s[x.trim()] || 0) + 1 });
+            const process = (val, target) => {
+                String(val).split(',').forEach(x => {
+                    let item = x.trim();
+                    if(!item) return;
+                    // Очистка від дат, якщо вони залетіли в базу
+                    if(item.includes('-') || item.includes('T')) {
+                        let m = item.match(/\d+/);
+                        item = m ? "№" + parseInt(m[0]) : item;
+                    }
+                    if(!item.startsWith('№')) item = "№" + item;
+                    counts[target][item] = (counts[target][item] || 0) + 1;
+                });
+            };
+            process(v.c, 'c'); process(v.p, 'p'); process(v.s, 's');
         });
 
         const buildBars = (data, group, total) => Object.entries(data).sort((a,b)=>b[1]-a[1]).map(([n,v]) => `
             <div class="bar-item ${group}">
-                <div class="bar-row"><span>№${n}</span><span>${v} чол.</span></div>
+                <div class="bar-row"><span>${n}</span><span>${v} чол.</span></div>
                 <div class="bar-bg"><div class="bar-fill" style="width:${(v/total*100)}%"></div></div>
             </div>`).join('');
 
@@ -425,15 +402,16 @@ async function renderStats() {
             <div class="sum-lbl">Обкладинки</div>${buildBars(counts.c, 'group-c', allVotes.length)}
             <div class="sum-lbl" style="margin-top:20px">Портрети</div>${buildBars(counts.p, 'group-p', allVotes.length)}
             <div class="sum-lbl" style="margin-top:20px">Розвороти</div>${buildBars(counts.s, 'group-s', allVotes.length)}`;
-    } catch(e) { document.getElementById('statRes').innerText = "Статистика оновлюється..."; }
+    } catch(e) { document.getElementById('statRes').innerText = "Оновлення результатів..."; }
 }
 
 // Пін-пад
 const pad = document.getElementById('adminPad');
 ['1','2','3','4','5','6','7','8','9','C','0','OK'].forEach(v => {
     const d = document.createElement('div'); d.className = 'pin-digit'; d.innerText = v;
+    if(v === 'OK') d.style.color = "var(--acc)";
     d.onclick = () => {
-        if(v==='OK') { if(pinBuffer===PIN) { renderAdmin(); goTo('sAdmin'); } else pinBuffer=""; }
+        if(v==='OK') { if(pinBuffer===PIN) { renderAdmin(); goTo('sAdmin'); } else { pinBuffer=""; alert("Невірний код"); } }
         else if(v==='C') pinBuffer="";
         else if(pinBuffer.length < 4) pinBuffer+=v;
         document.getElementById('pinDisp').innerText = "●".repeat(pinBuffer.length).padEnd(4,'·');
@@ -442,10 +420,13 @@ const pad = document.getElementById('adminPad');
 });
 
 async function renderAdmin() {
-    const res = await fetch(SCRIPT_URL);
-    const votes = await res.json();
-    const rows = votes.reverse().map(v => `<tr><td><b>${v.name}</b><br><small>${v.date}</small></td><td>${v.c}<br>${v.p}<br>${v.s}</td></tr>`).join('');
-    document.getElementById('adminTable').innerHTML = `<table class="voter-table"><thead><tr><th>Учень</th><th>Вибір</th></tr></thead><tbody>${rows}</tbody></table>`;
+    document.getElementById('adminTable').innerText = "Завантаження...";
+    try {
+        const res = await fetch(SCRIPT_URL);
+        const votes = await res.json();
+        const rows = votes.reverse().map(v => `<tr><td><b>${v.name}</b><br><small>${v.date}</small></td><td>${v.c}<br>${v.p}<br>${v.s}</td></tr>`).join('');
+        document.getElementById('adminTable').innerHTML = `<table class="voter-table"><thead><tr><th>Учень</th><th>Вибір</th></tr></thead><tbody>${rows}</tbody></table>`;
+    } catch(e) { document.getElementById('adminTable').innerText = "Помилка завантаження даних."; }
 }
 </script>
 </body>
