@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Голосування — Випускний альбом 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+          --bg:#0f0f10; --surf:#17171a; --surf2:#1e1e22; --brd:#2a2a2f;
+          --acc:#f0c050; --acc2:#e05530; --txt:#f0ede8; --muted:#777;
+          --r:14px; --rb:20px;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+        html,body{background:var(--bg);color:var(--txt);font-family:'Manrope',sans-serif;min-height:100vh}
+
+        /* SCREENS */
+        .scr{display:none;min-height:100vh;padding-bottom:130px;animation:fadeIn .25s ease}
+        .scr.on{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+        /* HEADER */
+        .hdr{
+          background:linear-gradient(180deg,#111114 0%,transparent 100%);
+          padding:36px 20px 22px; text-align:center;
+          position:sticky; top:0; z-index:50;
+          border-bottom:1px solid var(--brd);
+        }
+        .hdr-badge{
+          display:inline-flex;align-items:center;gap:6px;
+          background:var(--surf2);border:1px solid var(--brd);
+          border-radius:99px;padding:4px 14px;font-size:11px;
+          color:var(--muted);margin-bottom:12px;letter-spacing:.5px;
+        }
+        .hdr-badge b{color:var(--acc);font-weight:700}
+        .hdr h1{font-family:'Unbounded',sans-serif;font-size:clamp(16px,4.5vw,24px);font-weight:900;line-height:1.25}
+        .hdr h1 em{font-style:normal;color:var(--acc)}
+        .hdr p{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.5}
+
+        /* PROGRESS DOTS */
+        .dots{display:flex;gap:6px;padding:16px 20px 0;justify-content:center}
+        .dot{height:4px;flex:0 0 60px;background:var(--brd);border-radius:2px;transition:background .3s,opacity .3s}
+        .dot.done{background:var(--acc)}
+        .dot.cur{background:var(--acc);opacity:.45}
+
+        /* SECTION HEAD */
+        .sec{padding:20px 16px 12px}
+        .sec-tag{
+          display:inline-block;background:var(--acc);color:#000;
+          font-family:'Unbounded',sans-serif;font-size:9px;font-weight:900;
+          padding:3px 11px;border-radius:99px;letter-spacing:.8px;margin-bottom:8px
+        }
+        .sec h2{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;margin-bottom:5px}
+        .sec p{font-size:12px;color:var(--muted);line-height:1.6}
+
+        /* NAME INPUT */
+        .name-wrap{padding:4px 16px 24px}
+        .nlabel{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+        .ninput{
+          width:100%;background:var(--surf2);border:2px solid var(--brd);
+          border-radius:var(--r);padding:15px 16px;
+          font-family:'Manrope',sans-serif;font-size:15px;color:var(--txt);outline:none;
+          transition:border-color .2s
+        }
+        .ninput:focus{border-color:var(--acc)}
+        .ninput::placeholder{color:var(--muted)}
+
+        /* GRID */
+        .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:0 12px}
+        .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 14px}
+        .g1{display:grid;grid-template-columns:1fr;gap:10px;padding:0 14px}
+
+        /* CARD */
+        .card{
+          background:var(--surf);border:2.5px solid var(--brd);border-radius:var(--r);
+          overflow:hidden;cursor:pointer;position:relative;
+          transition:border-color .14s,transform .12s,box-shadow .14s
+        }
+        .card:active{transform:scale(.96)}
+        .card.sel{border-color:var(--acc);box-shadow:0 0 0 3px #f0c05030}
+        .card img{width:100%;display:block;aspect-ratio: 3/4; object-fit:cover; background:#222;}
+        .card-lbl{
+          padding:6px 8px;font-size:9px;font-weight:700;font-family:'Unbounded',sans-serif;
+          color:var(--muted);background:var(--surf2);text-align:center;letter-spacing:.3px;
+        }
+        .card.sel .card-lbl{color:var(--acc)}
+        .ck{
+          position:absolute;top:6px;right:6px;width:22px;height:22px;
+          background:var(--acc);color:#000;border-radius:50%;
+          display:flex;align-items:center;justify-content:center;
+          font-size:12px;font-weight:900;
+          opacity:0;transform:scale(.3);
+          transition:all .22s cubic-bezier(.34,1.56,.64,1);z-index:5
+        }
+        .card.sel .ck{opacity:1;transform:scale(1)}
+
+        /* STICKY BAR */
+        .bar{
+          position:fixed;bottom:0;left:0;right:0;
+          background:rgba(13,13,14,.97);backdrop-filter:blur(20px);
+          border-top:1px solid var(--brd);
+          padding:12px 16px 24px;z-index:100
+        }
+        .bar-sel{
+          font-size:11px;color:var(--muted);margin-bottom:10px;
+          display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:18px
+        }
+        .bar-pill{
+          background:var(--surf2);border:1px solid var(--brd);
+          border-radius:99px;padding:3px 10px;font-size:10px;font-weight:700;
+          color:var(--acc);
+        }
+        .bar-hint{font-size:11px;color:var(--muted);flex:1}
+        .btn{
+          width:100%;background:var(--acc);color:#000;border:none;border-radius:var(--r);
+          padding:15px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:900;
+          cursor:pointer;letter-spacing:.5px;transition:opacity .2s
+        }
+        .btn:disabled{opacity:.2;cursor:not-allowed}
+
+        /* SUMMARY & STATS */
+        .ty{padding:40px 20px; text-align:center}
+        .sum-card{background:var(--surf2); border:1px solid var(--brd); padding:15px; border-radius:var(--r); margin-bottom:10px; text-align:left}
+        .sum-lbl{font-size:10px; color:var(--acc); text-transform:uppercase; margin-bottom:12px; font-weight:700; letter-spacing: 1px;}
+        .sum-vals{display:flex; flex-wrap:wrap; gap:5px}
+        .sum-pill{background:var(--bg); padding:4px 10px; border-radius:99px; font-size:11px}
+        
+        /* НОВІ КОЛЬОРИ ТА СТИЛІ РЕЗУЛЬТАТІВ */
+        .stats-wrap{margin-top:30px; text-align:left}
+        .bar-item{margin-bottom:14px}
+        .bar-row{display:flex; justify-content:space-between; font-size:11px; margin-bottom:5px; color:#efefef}
+        
+        .bar-bg{
+            background:#1a1a20; 
+            height:10px; 
+            border-radius:999px; 
+            overflow:hidden; 
+            position:relative; 
+            border:1px solid #2f2f36;
+        }
+
+        .bar-fill{
+            height:100%; 
+            border-radius:999px; 
+            transition:width .8s cubic-bezier(0.4, 0, 0.2, 1); 
+            position:relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3) inset;
+        }
+
+        /* Ефект блиску зверху шкал */
+        .bar-fill::after{
+            content:'';
+            position:absolute;
+            inset:0;
+            background: linear-gradient(
+                180deg,
+                rgba(255,255,255,0.15) 0%,
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.1) 100%
+            );
+        }
+
+        /* Градієнти для категорій */
+        .group-c .bar-fill { background: linear-gradient(90deg, #f2994a, #f2c94c); } /* Золотий */
+        .group-p .bar-fill { background: linear-gradient(90deg, #8e2de2, #4a00e0); } /* Фіолетовий */
+        .group-s .bar-fill { background: linear-gradient(90deg, #00d2ff, #3a7bd5); } /* Блакитний */
+
+        /* ADMIN */
+        .admin-link{position:fixed; bottom:140px; right:16px; font-size:10px; color:var(--muted); cursor:pointer; z-index:99}
+        .pin-display{background:var(--surf2); padding:15px; border-radius:var(--r); text-align:center; font-size:24px; letter-spacing:10px; margin-bottom:20px}
+        .pinpad{display:grid; grid-template-columns: repeat(3,1fr); gap:10px; max-width:250px; margin:0 auto}
+        .pin-digit{background:var(--surf2); padding:20px; border-radius:var(--r); text-align:center; cursor:pointer}
+        .voter-table{width:100%; border-collapse:collapse; font-size:12px; margin-top:20px}
+        .voter-table th{text-align:left; color:var(--muted); padding:10px; border-bottom:1px solid var(--brd)}
+        .voter-table td{padding:10px; border-bottom:1px solid var(--brd)}
+    </style>
+</head>
+<body>
+
+<!-- SCREEN 1: NAME -->
+<div id="sName" class="scr on">
+    <div class="hdr">
+        <div class="hdr-badge">🎓 Випуск 2026</div>
+        <h1>Голосування за<br><em>дизайн альбому</em></h1>
+        <p>Ваш вибір допоможе зробити найкращий альбом!</p>
+    </div>
+    <div class="dots"><div class="dot cur"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="sec">
+        <h2>Як вас звати?</h2>
+        <p>Введіть ім'я та прізвище для реєстрації голосу</p>
+    </div>
+    <div class="name-wrap">
+        <input class="ninput" id="nameIn" type="text" placeholder="Ім'я та Прізвище">
+    </div>
+    <div class="bar">
+        <button class="btn" id="btnName" disabled onclick="goTo('sCovers')">ПОЧАТИ →</button>
+    </div>
+</div>
+
+<!-- SCREEN 2: COVERS -->
+<div id="sCovers" class="scr">
+    <div class="hdr">
+        <div class="hdr-badge">КРОК <b>1 / 3</b></div>
+        <h1>Оберіть <em>обкладинку</em></h1>
+        <p>Можна обрати декілька варіантів</p>
+    </div>
+    <div class="g3" id="covGrid"></div>
+    <div class="bar">
+        <div class="bar-sel" id="covSelInfo"><span class="bar-hint">Оберіть варіанти</span></div>
+        <button class="btn" id="btnCov" disabled onclick="goTo('sPhotos')">ДАЛІ →</button>
+    </div>
+</div>
+
+<!-- SCREEN 3: PHOTOS -->
+<div id="sPhotos" class="scr">
+    <div class="hdr">
+        <div class="hdr-badge">КРОК <b>2 / 3</b></div>
+        <h1>Стиль <em>портрета</em></h1>
+        <p>Як підписувати головне фото?</p>
+    </div>
+    <div class="g2" id="photoGrid"></div>
+    <div class="bar">
+        <div class="bar-sel" id="phSelInfo"><span class="bar-hint">Оберіть варіанти</span></div>
+        <button class="btn" id="btnPh" disabled onclick="goTo('sSpreads')">ДАЛІ →</button>
+    </div>
+</div>
+
+<!-- SCREEN 4: SPREADS -->
+<div id="sSpreads" class="scr">
+    <div class="hdr">
+        <div class="hdr-badge">КРОК <b>3 / 3</b></div>
+        <h1>Стиль <em>розворотів</em></h1>
+        <p>Дизайн сторінок з друзями</p>
+    </div>
+    <div class="g1" id="spreadGrid"></div>
+    <div class="bar">
+        <div class="bar-sel" id="spSelInfo"><span class="bar-hint">Оберіть варіанти</span></div>
+        <button class="btn" id="btnSp" disabled onclick="submitVote()">ЗАВЕРШИТИ ✅</button>
+    </div>
+</div>
+
+<!-- SCREEN 5: THANK YOU -->
+<div id="sTy" class="scr">
+    <div class="ty">
+        <h1>Дякуємо, <em id="tyName"></em>!</h1>
+        <p>Ваш голос зараховано.</p>
+        <div id="summary" style="margin-top:25px"></div>
+        <div class="stats-wrap">
+            <h3 style="margin-bottom:20px; font-family:'Unbounded'; font-size:14px">Поточні результати:</h3>
+            <div id="statRes"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="sAdminLogin" class="scr">
+    <div class="ty">
+        <h2>Вхід для адміна</h2>
+        <div class="pin-display" id="pinDisp">····</div>
+        <div class="pinpad">
+            <div class="pin-digit" onclick="pinIn('1')">1</div><div class="pin-digit" onclick="pinIn('2')">2</div><div class="pin-digit" onclick="pinIn('3')">3</div>
+            <div class="pin-digit" onclick="pinIn('4')">4</div><div class="pin-digit" onclick="pinIn('5')">5</div><div class="pin-digit" onclick="pinIn('6')">6</div>
+            <div class="pin-digit" onclick="pinIn('7')">7</div><div class="pin-digit" onclick="pinIn('8')">8</div><div class="pin-digit" onclick="pinIn('9')">9</div>
+            <div class="pin-digit" onclick="pinIn('C')">⌫</div><div class="pin-digit" onclick="pinIn('0')">0</div><div class="pin-digit" onclick="pinIn('OK')" style="color:var(--acc)">OK</div>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="sAdmin" class="scr">
+    <div style="padding:20px">
+        <h2>Список голосів</h2>
+        <div id="adminTable"></div>
+        <button class="btn" style="margin-top:20px" onclick="location.reload()">ВИЙТИ</button>
+    </div>
+</div>
+
+<div class="admin-link" onclick="goTo('sAdminLogin')">⚙ Адмін</div>
+
+<script>
+// --- КОНФІГУРАЦІЯ ---
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgB5NlmGcniZgcM9C7AgdAybH2eLtGCHj2HlNMXWw8LXtkUb4YQc9ZsbkDtN1CvsCRcg/exec";
+
+const I = {
+    // Обкладинки (від c01 до c42)
+    c01: "img/cover1.png",
+    c02: "img/cover2.png",
+    c03: "img/cover3.png",
+    c04: "img/cover4.png",
+    c05: "img/cover5.png",
+    c06: "img/cover6.png",
+    c07: "img/cover7.png",
+    c08: "img/cover8.png",
+    c09: "img/cover9.png",
+    c10: "img/cover10.png",
+    c11: "img/cover11.png",
+    c12: "img/cover12.png",
+    c13: "img/cover13.png",
+    c14: "img/cover14.png",
+    c15: "img/cover15.png",
+    c16: "img/cover16.png",
+    c17: "img/cover17.png",
+    c18: "img/cover18.png",
+    c19: "img/cover19.png",
+    c20: "img/cover20.png",
+    c21: "img/cover21.png",
+    c22: "img/cover22.png",
+    c23: "img/cover23.png",
+    c24: "img/cover24.png",
+    c25: "img/cover25.png",
+    c26: "img/cover26.png",
+    c27: "img/cover27.png",
+    c28: "img/cover28.png",
+    c29: "img/cover29.png",
+    c30: "img/cover30.png",
+    c31: "img/cover31.png",
+    c32: "img/cover32.png",
+    c33: "img/cover33.png",
+    c34: "img/cover34.png",
+    c35: "img/cover35.png",
+    c36: "img/cover36.png",
+    c37: "img/cover37.png",
+    c38: "img/cover38.png",
+    c39: "img/cover39.png",
+    c40: "img/cover40.png",
+    c41: "img/cover41.png",
+    c42: "img/cover42.png",
+
+    // Портрети (від p01 до p04)
+    p01: "img/main_photo1.png",
+    p02: "img/main_photo2.png",
+    p03: "img/main_photo3.png",
+    p04: "img/main_photo4.png",
+
+    // Розвороти (від s01 до s08)
+    s01: "img/turns1.png",
+    s02: "img/turns2.png",
+    s03: "img/turns3.png",
+    s04: "img/turns4.png",
+    s05: "img/turns5.png",
+    s06: "img/turns6.png",
+    s07: "img/turns7.png",
+    s08: "img/turns8.png",
+};
+
+let selC = new Set(), selP = new Set(), selS = new Set();
+let pinBuffer = "";
+const PIN = "2026";
+
+function goTo(id) {
+    document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+    window.scrollTo(0,0);
+}
+
+function createGrid(containerId, prefix, count, set, infoId, btnId) {
+    const cont = document.getElementById(containerId);
+    for(let i=1; i<=count; i++) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const imgKey = prefix + String(i).padStart(2, '0');
+        card.innerHTML = `<img src="${I[imgKey] || ''}"><div class="card-lbl">Варіант №${i}</div><div class="ck">✓</div>`;
+        card.onclick = () => {
+            set.has(i) ? set.delete(i) : set.add(i);
+            card.classList.toggle('sel');
+            const info = document.getElementById(infoId);
+            const btn = document.getElementById(btnId);
+            info.innerHTML = set.size ? "Обрано: " + Array.from(set).map(n => `<span class="bar-pill">№${n}</span>`).join('') : "Оберіть варіант";
+            btn.disabled = !set.size;
+        };
+        cont.appendChild(card);
+    }
+}
+
+// Ініціалізація
+createGrid('covGrid', 'c', 42, selC, 'covSelInfo', 'btnCov');
+createGrid('photoGrid', 'p', 4, selP, 'phSelInfo', 'btnPh');
+createGrid('spreadGrid', 's', 8, selS, 'spSelInfo', 'btnSp');
+
+document.getElementById('nameIn').oninput = (e) => document.getElementById('btnName').disabled = e.target.value.trim().length < 3;
+
+// --- РОБОТА З ДАНИМИ ---
+
+async function submitVote() {
+    const btn = document.getElementById('btnSp');
+    btn.disabled = true; btn.innerText = "НАДСИЛАННЯ...";
+    
+    const name = document.getElementById('nameIn').value.trim();
+    const vote = { name, c: [...selC], p: [...selP], s: [...selS], date: new Date().toLocaleString() };
+
+    try {
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(vote) });
+        document.getElementById('tyName').innerText = name;
+        document.getElementById('summary').innerHTML = `
+            <div class="sum-card"><div class="sum-lbl">Обкладинки</div><div class="sum-vals">${vote.c.map(v=>`<span class="sum-pill">№${v}</span>`).join('')}</div></div>
+            <div class="sum-card"><div class="sum-lbl">Портрет</div><div class="sum-vals">${vote.p.map(v=>`<span class="sum-pill">№${v}</span>`).join('')}</div></div>
+            <div class="sum-card"><div class="sum-lbl">Розвороти</div><div class="sum-vals">${vote.s.map(v=>`<span class="sum-pill">№${v}</span>`).join('')}</div></div>`;
+        goTo('sTy');
+        renderStats(); 
+    } catch (e) {
+        alert("Помилка зв'язку. Спробуйте ще раз.");
+        btn.disabled = false; btn.innerText = "ЗАВЕРШИТИ ✅";
+    }
+}
+
+async function renderStats() {
+    try {
+        const res = await fetch(SCRIPT_URL);
+        const allVotes = await res.json();
+        const counts = { c: {}, p: {}, s: {} };
+        
+        allVotes.forEach(v => {
+            String(v.c).split(',').forEach(x => { if(x.trim()) counts.c[x.trim()] = (counts.c[x.trim()] || 0) + 1 });
+            String(v.p).split(',').forEach(x => { if(x.trim()) counts.p[x.trim()] = (counts.p[x.trim()] || 0) + 1 });
+            String(v.s).split(',').forEach(x => { if(x.trim()) counts.s[x.trim()] = (counts.s[x.trim()] || 0) + 1 });
+        });
+
+        const buildBars = (data, group, total) => Object.entries(data).sort((a,b)=>b[1]-a[1]).map(([n,v]) => `
+            <div class="bar-item ${group}">
+                <div class="bar-row"><span>№${n}</span><span>${v} чол.</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:${(v/total*100)}%"></div></div>
+            </div>`).join('');
+
+        document.getElementById('statRes').innerHTML = `
+            <div class="sum-lbl">Обкладинки</div>${buildBars(counts.c, 'group-c', allVotes.length)}
+            <div class="sum-lbl" style="margin-top:20px">Портрети</div>${buildBars(counts.p, 'group-p', allVotes.length)}
+            <div class="sum-lbl" style="margin-top:20px">Розвороти</div>${buildBars(counts.s, 'group-s', allVotes.length)}`;
+    } catch(e) { document.getElementById('statRes').innerText = "Статистика оновлюється..."; }
+}
+
+// Пін-пад
+const pad = document.getElementById('adminPad');
+['1','2','3','4','5','6','7','8','9','C','0','OK'].forEach(v => {
+    const d = document.createElement('div'); d.className = 'pin-digit'; d.innerText = v;
+    d.onclick = () => {
+        if(v==='OK') { if(pinBuffer===PIN) { renderAdmin(); goTo('sAdmin'); } else pinBuffer=""; }
+        else if(v==='C') pinBuffer="";
+        else if(pinBuffer.length < 4) pinBuffer+=v;
+        document.getElementById('pinDisp').innerText = "●".repeat(pinBuffer.length).padEnd(4,'·');
+    };
+    pad.appendChild(d);
+});
+
+async function renderAdmin() {
+    const res = await fetch(SCRIPT_URL);
+    const votes = await res.json();
+    const rows = votes.reverse().map(v => `<tr><td><b>${v.name}</b><br><small>${v.date}</small></td><td>${v.c}<br>${v.p}<br>${v.s}</td></tr>`).join('');
+    document.getElementById('adminTable').innerHTML = `<table class="voter-table"><thead><tr><th>Учень</th><th>Вибір</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+</script>
+</body>
+</html>
